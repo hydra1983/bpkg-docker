@@ -1,0 +1,53 @@
+#!/usr/local/bin/bash
+
+#########################################
+# THIS SECTION !!SHOULD NOT!! BE MODIFIED BY
+# DEVELOPERS AS IT PROVIDES COMMON FUNCTIONS
+# FOR ALL KINDS OF SCRIPTS
+#
+# Maintainer: Edison Guo <hydra1983@gmail.com>
+#########################################
+# Resolve Script Base
+function _script_base() {
+    local script_base script_name
+
+    if [[ -L $0 ]] ; then
+        script_base=$(cd $(dirname $(readlink -f $0)); pwd)
+    else
+        script_base=$(cd $(dirname $0); pwd)
+    fi
+
+    script_name=$(basename $0)
+
+    if [[ -d "${script_base}/../share/${script_name}" ]]; then
+        script_base="$(cd ${script_base}/../share/${script_name}; pwd)"
+    fi
+
+    echo "${script_base}"
+}
+
+readonly SCRIPT_BASE="$(_script_base)"
+
+# Load Dependencies
+[ -f ${SCRIPT_BASE}/_index.sh ] && source ${SCRIPT_BASE}/_index.sh || true
+#########################################
+
+source "${SCRIPT_BASE}/deps/shlogging/shlogging"
+
+function _docker_login () {
+  _assert "'${REGISTRY_USERNAME}' != ''" "Require 'REGISTRY_USERNAME'"
+  _assert "'${REGISTRY_PASSWORD}' != ''" "Require 'REGISTRY_PASSWORD'"
+
+  _info "Login to docker registry ${REGISTRY_HOST}"
+  if [[ "${REGISTRY_USERNAME}" != "" ]] && [[ "${REGISTRY_PASSWORD}" != "" ]]; then
+    for try in {1..10} ; do
+      _info "Trying to login to ${REGISTRY_HOST} as user ${REGISTRY_USERNAME}"
+      local RESULT=$(docker login -u "${REGISTRY_USERNAME}" -p "${REGISTRY_PASSWORD}" "${REGISTRY_HOST}")
+
+      if [[ "$(echo ${RESULT}|grep 'Succeeded')" != "" ]]; then
+        _info "Login to ${REGISTRY_HOST} as user ${REGISTRY_USERNAME} succeed"
+        break
+      fi
+    done
+  fi
+}
