@@ -1,0 +1,9 @@
+{
+    "name": "colorizer",
+    "version": "0.1.0",
+    "description": "Generate functions like _bold, _underline etc. to colorize output",
+    "scripts": [
+        "colorizer"
+    ],
+    "install": "make install"
+}
