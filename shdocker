@@ -1,6 +1,6 @@
 #!/usr/local/bin/bash
 
-__load "__script_dir/deps/shlogging/shlogging"
+__load "${BASH_SOURCE[0]}" "deps/shlogging/shlogging"
 
 function _docker_login () {
   _assert "'${REGISTRY_USERNAME}' != ''" "Require 'REGISTRY_USERNAME'"
