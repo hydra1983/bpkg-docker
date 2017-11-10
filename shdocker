@@ -1,5 +1,6 @@
 #!/usr/local/bin/bash
 
+__load "${BASH_SOURCE[0]}" "shassert"
 __load "${BASH_SOURCE[0]}" "shlogging"
 
 function _docker_login () {
@@ -8,14 +9,18 @@ function _docker_login () {
 
   _info "Login to docker registry ${REGISTRY_HOST}"
   if [[ "${REGISTRY_USERNAME}" != "" ]] && [[ "${REGISTRY_PASSWORD}" != "" ]]; then
+    # shellcheck disable=SC2034
     for try in {1..10} ; do
       _info "Trying to login to ${REGISTRY_HOST} as user ${REGISTRY_USERNAME}"
-      local RESULT=$(docker login -u "${REGISTRY_USERNAME}" -p "${REGISTRY_PASSWORD}" "${REGISTRY_HOST}")
+      local result
+      result=$(docker login -u "${REGISTRY_USERNAME}" -p "${REGISTRY_PASSWORD}" "${REGISTRY_HOST}")
 
-      if [[ "$(echo ${RESULT}|grep 'Succeeded')" != "" ]]; then
+      if [[ "$(echo "${result}" | grep 'Succeeded')" != "" ]]; then
         _info "Login to ${REGISTRY_HOST} as user ${REGISTRY_USERNAME} succeed"
         break
       fi
     done
   fi
 }
+
+export -f _docker_login
